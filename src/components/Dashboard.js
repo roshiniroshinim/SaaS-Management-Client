@@ -298,9 +298,12 @@ const handleSubmit = async (e) => {
   const [userFeatureAccess,
     setUserFeatureAccess]=useState([])
     const featuresAccess =(id) =>{
+      const data = tenants.find(t => t._id === id);
+      setUserFeatureAccess(data)
       setShowFeatureModel(true);
-      alert("saved");
+      /*alert("saved");*/
     }
+    console.log(userFeatureAccess)
   
   return (
     /*Navbar*/

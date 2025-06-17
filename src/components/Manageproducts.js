@@ -41,20 +41,35 @@ const Manageproducts = ({ isOpen, onClose, togglesData }) => {
   const [featureState, setFeatureState] = useState([]);
 
   // Initialize featureState from props when modal opens
-  useEffect(() => {
-    if (isOpen) {
-      setFeatureState([...togglesData]);
-    }
-  }, [isOpen, togglesData]);
-
+  // useEffect(() => {
+  //   if (isOpen) {
+  //     setFeatureState([...togglesData]);
+  //   }
+  // }, [isOpen, togglesData]);
+  const init = {};
+  productFeatures.forEach(group => 
+    group.items.forEach(item => (init[item.id] = true))
+  )
+console.log(togglesData);
   const handleToggle = (id) => {
-    const updated = featureState.map(f =>
-      f.id === id ? { ...f, enabled: !f.enabled } : f
-    );
-    setFeatureState(updated);
+    // 
+      setFeatureState(pre => ({...pre, [id]: !pre[id] }));
+    // 
+    // const updated = featureState.map(f =>
+    //   f.id === id ? { ...f, enabled: !f.enabled } : f
+    // );
+    // setFeatureState(updated);
   };
 
   const handleSave = () => {
+    // 
+    const result = [];
+    productFeatures.forEach(sec =>
+      sec.items.forEach(i =>
+        result.push({ name: i.name, enabled: featureState[i.id]})
+      )
+    )
+    // 
     console.log('🟢 Final Feature States:', featureState);
     onClose(featureState); // Pass updated features to parent if needed
   };
@@ -73,8 +88,8 @@ const Manageproducts = ({ isOpen, onClose, togglesData }) => {
           {productFeatures.map(section => (
             <div className='section' key={section.category}>
               {section.items.map(i => {
-                const current = featureState.find(f => f.id === i.id);
-                const checked = current ? current.enabled : false;
+                // const current = featureState.find(f => f.id === i.id);
+                // const checked = current ? current.enabled : false;
 
                 return (
                   <div className="feature-row" key={i.id}>
@@ -85,7 +100,7 @@ const Manageproducts = ({ isOpen, onClose, togglesData }) => {
                     <label className="switch">
                       <input
                         type="checkbox"
-                        checked={checked}
+                        checked={featureState[i.id]} //  checked={checked}
                         onChange={() => handleToggle(i.id)}
                       />
                       <span className="slider"></span>
