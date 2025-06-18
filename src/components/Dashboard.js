@@ -688,6 +688,8 @@ const filteredTenants = tenants.filter(tenant => {
         <option value="1">1 Product</option>
         <option value="2">2 Products</option>
         <option value="3">3 Products</option>
+        <option value="4">4 Products</option>
+        <option value="5">5 Products</option>
       </select>
     </div>
 
