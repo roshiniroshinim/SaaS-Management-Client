@@ -1,26 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import '../App.css';
 import microsoft1 from '../images/microsoft1.jpg';
 import { FaTimes } from 'react-icons/fa';
 import axios from 'axios';
-import Manageproducts from './Manageproducts';
-
-
-
-import {
-  FaPlus,
-  FaEdit,
-  FaTrash,
-  FaRegCheckCircle,
-  FaRegUser
-} from 'react-icons/fa';
+import { FaTrash, FaRegCheckCircle, FaRegUser } from 'react-icons/fa';
 import { HiOutlineOfficeBuilding } from "react-icons/hi";
 import { GoPaste } from "react-icons/go";
 import { MdEdit } from "react-icons/md"
 
 function Dashboard() {
-  const navigate = useNavigate();
 
   const [tenants, setTenants] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -30,23 +18,6 @@ function Dashboard() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingTenant, setEditingTenant] = useState(null);
   const [showFeatureModel, setShowFeatureModel] = useState(false);
-  const [selectedStatus, setSelectedStatus] = useState('All');
-const [search, setSearch] = useState('');
-
-  
-
-  
-
-
-  const [tenantName, setTenantName] = useState('');
-  const [domain, setDomain] = useState('');
-  const [email, setEmail] = useState('');
-  const [subscription, setSubscription] = useState('Free');
-  const [status, setStatus] = useState('Active');
-  const [createdDate, setCreatedDate] = useState(new Date().toISOString().slice(0, 10));
-
-  const handleOpen = () => setShowModal(true);
-  const handleClose = () => setShowModal(false);
 
   const handleEditClick = (tenant) => {
     setEditingTenant({ ...tenant });
@@ -58,59 +29,13 @@ const [search, setSearch] = useState('');
     setShowEditModal(false);
   };
 
- /* const handleSubmit = (e) => {
-    e.preventDefault();
-    const newTenant = {
-      name: tenantName,
-      domain,
-      email,
-      subscription,
-      status,
-      createdDate,
-      plan: subscription,
-      products: 1
-    };
-    setTenants([...tenants, newTenant]);
-    console.log(newTenant)
-    handleClose();
-  };*/
 
-  // edit button function
-  const handleEditSubmit = async (e) => {
-    // e.preventDefault();
-    // const updatedTenants = tenants.map(t =>
-    //   t.id === editingTenant.id ? editingTenant : t
-    // );
-
-    const editId = editingTenant._id;
-    const res = await axios.put(`http://localhost:5000/api/tenants/${editId}`, editingTenant);
-    console.log('edit success..')
-    // setTenants(updatedTenants);
-    handleEditClose();
-    dataFetch();
-  };
-
-  console.log(editingTenant);
-
- // ✅ Paste your useEffect HERE:
   useEffect(() => {
-    // Temporary fallback data
-    /*setTenants([
-      {id:1, name: 'Acme Corporation', email: 'acme@example.com', status: 'Active', plan: 'Enterprise', products: 3 },
-      {id:2, name: 'Globex Industries', email: 'globex@example.com', status: 'Active', plan: 'Professional', products: 2 },
-      {id:3, name: 'Initech LLC', email: 'initech@example.com', status: 'Inactive', plan: 'Starter', products: 1 }
-    ]);*/
-
-    // Then fetch from backend and overwrite
-    // axios.get("http://localhost:5000/api/tenants")
-    //   .then((response) => {
-    //     setTenants(response.data);
-    //   })
-    //   .catch((error) => console.error(error));
-
-    dataFetch();
+  
+    dataFetch();  // <= enable pannaum ippothikku local data vaichu pannurom so off pannirukken <= intha symble na local kaga off pannirukken nu artham
 
   }, []);
+
   console.log(tenants);
 
   const dataFetch = () => {
@@ -121,40 +46,27 @@ const [search, setSearch] = useState('');
       .catch((error) => console.error(error));
   }
 
-
- const filteredTenants = tenants.filter((tenant) => {
-  // Safe lowercase for status
-  const tenantStatus = (tenant.status || '').toLowerCase();
-  const selected = selectedStatus.toLowerCase();
-
-  // 1️⃣ Search filter (e.g. name or email)
-  const matchesSearch =
-    (tenant.name && tenant.name.toLowerCase().includes(search.toLowerCase())) ||
-    (tenant.email && tenant.email.toLowerCase().includes(search.toLowerCase()));
-
-  // 2️⃣ Status filter
-  const matchesStatus =
-    selectedStatus === 'All' || tenantStatus === selected;
-
-  // 3️⃣ Product filter (ensure conversion)
-  const matchesProduct =
+const filteredTenants = tenants.filter(tenant => {
+  const matchName = tenant.tenantsName.toLowerCase().includes(searchTerm.toLowerCase());
+  const matchStatus = statusFilter === 'All' || tenant.status === statusFilter;
+  const matchProduct =
     productFilter === 'All' || tenant.products === parseInt(productFilter);
-   return matchesSearch && matchesStatus && matchesProduct;
+
+  return matchName && matchStatus && matchProduct;
 });
 
 
   const handleDeleteTenant = async (id) => {
     const confirmDelete = window.confirm("Are you sure you want to delete this tenant?");
     if (confirmDelete) {
-      // const updatedTenants = tenants.filter(t => t.email !== email);
-      // setTenants(updatedTenants);
       const res = await axios.delete(`http://localhost:5000/api/tenants/${id}`);
       alert('delete successfull...')
-      dataFetch();
+      console.log(res.data);
+      dataFetch(); // <=
     }
   };
 // 
- const [showManageProducts, setShowManageProducts] = useState(false);
+
  const productFeatures = [
     {
       category: 'Core Features',
@@ -190,125 +102,105 @@ const [search, setSearch] = useState('');
     }
   ];
 
-  const [toggles, setToggles] = useState(() => {
-    const init = {};
-    productFeatures.forEach(group =>
-      group.items.forEach(item => (init[item.id] = true))
-    );
-    return init;
-  });
-
-  const handleToggle = (id) => {
-    setToggles(prev => ({ ...prev, [id]: !prev[id] }));
-  };
-
-  const handleSave = () => {
-    const result = [];
-    productFeatures.forEach(section =>
-      section.items.forEach(item =>
-        result.push({ name: item.name, enabled: toggles[item.id] })
-      )
-    );
-    console.log(' Feature Status:', result);
-    setShowModal(false);
-  };
-
-// const ManageProducts=()=>{
-//     const [showModal, setShowModal] = useState(false);
-
-  
-
-
-//   return (
-//     <div className="dashboard-container">
-//       <button className="btn-add" onClick={() => setShowModal(true)}>Manage Products</button>
-
-     
-//     </div>
-//   );
-// }
-const handleSubmit = async (e) => {
-    e.preventDefault();
-    const newTenant = {
-      name: tenantName,
-      domain,
-      email,
-      subscription,
-      status,
-      createdDate,
-      products: Math.floor(Math.random()*10)+1,
-    };
-    console.log(newTenant);
-     console.log("succesfully")
-
-    try {
-        console.log("Added data")
-      await axios.post('http://localhost:5000/api/tenants', newTenant);
-      alert('Tenant added successfully!');
-      setShowModal(false);
-      /*fetchTenants();*/
-
-      // Reset form fields
-      setTenantName('');
-      setDomain('');
-      setEmail('');
-      setSubscription('Free');
-      setStatus('Active');
-      setCreatedDate('');
-      dataFetch();
-    } catch (err) {
-      console.error(err);
-      alert('Failed to add tenant');
-    }
-  };
-  
-
-   const fetchTenants = async () => {
-    const res = await axios.get('http://localhost:5000/api/tenants');
-    setTenants(res.data);
-  };
-
-  const handleEdit = (tenant) => {
-    setEditingTenant(tenant);
-    setShowEditModal(true);
-  };
-
-
-  const handleDelete = async (id) => {
-    if (window.confirm("Are you sure?")) {
-      await axios.delete(`http://localhost:5000/api/tenants/${id}`);
-      fetchTenants();
-    }
-  };
-
-  const handleUpdate = async (updatedTenant) => {
-    await axios.put(`http://localhost:5000/api/tenants/${updatedTenant._id}`, updatedTenant);
-    fetchTenants();
-    handleEditClose();
-  };
-
-  useEffect(() => {
-    fetchTenants();
-  }, []);
- 
-
-  /*const productCount = Math.floor(Math.random()*5)+1;*/
-  // console.log(productCount);
-
   const [userFeatureAccess,
     setUserFeatureAccess]=useState([])
-    const featuresAccess =(id) =>{
-      const data = tenants.find(t => t._id === id);
-      setUserFeatureAccess(data)
+    const featuresAccess = async (id) =>{
+      const res = await axios.get(`http://localhost:5000/api/tenants/${id}/features`);
+          console.log(res.data);
+      setUserFeatureAccess(res.data)
       setShowFeatureModel(true);
       /*alert("saved");*/
     }
-    console.log(userFeatureAccess)
-  
-  return (
-    /*Navbar*/
-    <div className="dashboard">
-      <div className="dashboard-header">
+    console.log(userFeatureAccess);
+
+    // start function
+    const features = [
+    {
+      id:'pipeline',
+      name: 'Deal Pipeline',
+      enabled: false
+    },
+    {
+      id:'task',
+      name: 'Task Management',
+      enabled: false
+    },
+    {
+      id:'email',
+      name: 'Email Integration',
+      enabled: false
+    },
+    {
+      id:'reporting',
+      name: 'Advanced Reporting',
+      enabled: false
+    },
+    {
+      id:'analytics',
+      name: 'Analytics',
+      enabled: false
+    },
+    {
+      id:'dashboards',
+      name: 'Custom Dashboards',
+      enabled: false
+    },
+    {
+      id:'scheduled',
+      name: 'Scheduled Reports',
+      enabled: false
+    },
+    {
+      id:'export',
+      name: 'Data Export',
+      enabled: false
+    },
+    {
+      id:'api',
+      name: 'API Access',
+      enabled: false
+    },
+    {
+      id:'predictive',
+      name: 'Predictive Analytics',
+      enabled: false
+    },
+    {
+      id:'marketing',
+      name: 'Marketing',
+      enabled: false
+    },
+    {
+      id:'support',
+      name: 'Support',
+      enabled: false
+    }
+  ];
+
+    const addNewTenants = async (newTenant) => {
+        const newCard = {...newTenant, features: features};
+        try {
+            await axios.post('http://localhost:5000/api/tenants', newCard);
+            console.log(newCard);
+            setTenants(prev => [...prev, newCard]);
+            alert('Tenant added successfully!');
+            dataFetch(); // <=
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
+      const handleUpdate = async (updatedTenant) => {
+        await axios.put(`http://localhost:5000/api/tenants/${updatedTenant._id}`, updatedTenant);
+          dataFetch(); // <=
+        handleEditClose();
+    };
+
+    // end function
+
+    const Navbar = ({handleOpen}) => {
+      return(
+        <div className="dashboard-header">
         <div className="header-left">
           <h2>
             <img src={microsoft1} alt="TenantHub Logo" className="logo" /> SaaS Tenant Manager
@@ -316,51 +208,82 @@ const handleSubmit = async (e) => {
         </div>
         <button className="add-button" onClick={handleOpen}>+ Add New Tenant</button>
       </div>
+      )
+    }
 
- 
-      {showModal && (
+    const AddNewTenants = ({ handleClose, addNewTenants }) => {
+        const [newTenant, setNewTenant] = useState({
+            tenantsName: '',
+            domain: '',
+            email: '',
+            subscription: 'Free',
+            status: 'Active',
+            products: Math.floor(Math.random()*10)+1 ,
+            createdDate: '', // Empty by default
+        });
+
+        const handleChange = (e) => {
+            setNewTenant({...newTenant, [e.target.name]: e.target.value});
+        }
+
+        const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        try {
+            addNewTenants(newTenant);
+            console.log(newTenant);
+            handleClose();
+            setNewTenant('')
+        } catch (err) {
+            console.error(err);
+            alert('Failed to add tenant');
+        }
+    };
+
+      return(
         <div className="modal-overlay">
           <div className="modal">
             <div className="modal-header">
               <h3>Add New Tenant</h3>
               <button className="close-btn" onClick={handleClose}>&times;</button>
             </div>
-            <form className="modal-form" onSubmit={(e)=>handleSubmit(e)}>
+            <form className="modal-form" onSubmit={handleSubmit}>
               <div className="row">
                 <div className="form-group1">
                   <label>Tenant Name</label>
-                  <input type="text" value={tenantName} onChange={(e) => setTenantName(e.target.value)} required />
+                  <input type="text" name='tenantsName' value={newTenant.tenantsName} onChange={handleChange} required />
                 </div>
                 <div className="form-group1">
                   <label>Domain</label>
-                  <input type="text" value={domain} onChange={(e) => setDomain(e.target.value)} required />
+                  <input type="text" name='domain' value={newTenant.domain} onChange={handleChange} required />
                 </div>
               </div>
               <div className="row">
                 <div className="form-group1">
                   <label>Admin Email</label>
-                  <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                  <input type="email" name='email' value={newTenant.email} onChange={handleChange} required />
                 </div>
                 <div className="form-group1">
                   <label>Subscription Plan</label>
-                  <select value={subscription} onChange={(e) => setSubscription(e.target.value)}>
-                    <option>Free</option>
-                    <option>Professions</option>
-                    <option>Enterprise</option>
+                  <select name='subscription' value={newTenant.subscription} onChange={handleChange}>
+                    <option value="Free">Free</option>
+                    <option value="Enterprise">Enterprise</option>
+                    <option value="Professional">Professional</option>
+                    <option value="Starter">Starter</option>
                   </select>
                 </div>
               </div>
               <div className="row">
                 <div className="form-group1">
                   <label>Status</label>
-                  <select value={status} onChange={(e) => setStatus(e.target.value)}>
-                    <option>Active</option>
-                    <option>Inactive</option>
+                  <select value={newTenant.status} name='status' onChange={handleChange}>
+                    <option value="Active">Active</option>
+                    <option value="Inactive">Inactive</option>
                   </select>
                 </div>
                 <div className="form-group1">
                   <label>Created Date</label>
-                  <input type="date" value={createdDate} onChange={(e) => setCreatedDate(e.target.value)} />
+                  <input type="date" name='createdDate' value={newTenant.createdDate} onChange={handleChange}  required />
                 </div>
               </div>
               <div className="modal-actions">
@@ -370,79 +293,199 @@ const handleSubmit = async (e) => {
             </form>
           </div>
         </div>
-      )}
+      )
+    }
 
+    const EditTenant = ({ isOpen, onClose, editData, onUpdate }) => {
 
-      {showEditModal && editingTenant && (
-        <div className="modal-overlay">
-          <div className="modal">
-            <div className="modal-header">
-              <h3>Edit Tenant</h3>
-              <button className="close-btn" onClick={handleEditClose}>&times;</button>
-            </div>
-            <form className="modal-form" onSubmit={handleEditSubmit}>
-              <div className="row">
-                <div className="form-group2">
-                  <label>Tenant Name</label>
-                  <input type="text" value={editingTenant.name} onChange={(e) => setEditingTenant({ ...editingTenant, name: e.target.value })} required />
-                </div>
-                <div className="form-group2">
-                  <label>Domain</label>
-                  <input type="text" value={editingTenant.domain || ''} onChange={(e) => setEditingTenant({ ...editingTenant, domain: e.target.value })} required />
-                </div>
-              </div>
-              <div className="row">
-                <div className="form-group2">
-                  <label>Admin Email</label>
-                  <input type="email" value={editingTenant.email} onChange={(e) => setEditingTenant({ ...editingTenant, email: e.target.value })} required />
-                </div>
-                <div className="form-group2">
-                  <label>Subscription Plan</label>
-                  <select value={editingTenant.subscription || ''} onChange={(e) => setEditingTenant({ ...editingTenant, subscription: e.target.value })}>
-                    <option>Free</option>
-                    <option>Professions</option>
-                    <option>Enterprise</option>
-                  </select>
-                </div>
-              </div>
-              <div className="row">
-                <div className="form-group2">
-                  <label>Status</label>
-                  <select value={editingTenant.status || ''} onChange={(e) => setEditingTenant({ ...editingTenant, status: e.target.value })}>
-                    <option>Active</option>
-                    <option>Inactive</option>
-                  </select>
-                </div>
-                <div className="form-group2">
-                  <label>Created Date</label>
-                  <input type="date" value={editingTenant.createdDate || ''} onChange={(e) => setEditingTenant({ ...editingTenant, createdDate: e.target.value })} />
-                </div>
-              </div>
-              <div className="modal-actions">
-                <button type="button" className="cancel" onClick={handleEditClose}>Cancel</button>
-                <button type="submit" className="save">Save Tenant</button>
-              </div>
-            </form>
+      
+   const today = new Date();
+  const formattedToday = today.toISOString().split('T')[0]; // yyyy-mm-dd
+
+   const formatToInputDate = (dateStr) => {
+    if (!dateStr.includes('-')) return dateStr;
+    const parts = dateStr.split('-');
+    return parts.length === 3 ? `${parts[2]}-${parts[1]}-${parts[0]}` : dateStr;
+  };
+
+    const [formData, setFormData] = useState({
+      tenantsName: '',
+      domain: '',
+      email: '',
+      subscription: 'Free',
+      status: 'Active',
+      products: '',
+      createdDate: formattedToday
+    });
+
+    console.log(editData)
+
+    // Fill data in edit mode
+     useEffect(() => {
+    if (editData) {
+      setFormData({
+        ...editData,
+        createdDate: editData.createdDate
+          ? formatToInputDate(editData.createdDate)
+          : formattedToday
+      });
+    }
+  }, [editData, formattedToday]);
+
+   
+
+    console.log(formData.createdDate)
+
+    // Convert yyyy-mm-dd to dd-mm-yyyy for display/storage
+    const formatToDisplayDate = (isoDate) => {
+      const [yyyy, mm, dd] = isoDate.split('-');
+      return `${dd}-${mm}-${yyyy}`;
+    };
+
+    const handleChange = (e) => {
+      setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    const handleSubmit = (e) => {
+      e.preventDefault();
+
+      const dataToSave = {
+        ...formData,
+        products: editData ? formData.products : Math.floor(Math.random() * 5) + 1,
+        createdDate: formatToDisplayDate(formData.createdDate)
+      };
+
+      onUpdate(dataToSave);
+      onClose();
+      setFormData({
+        tenantsName: '',
+        domain: '',
+        email: '',
+        subscription: 'Free',
+        status: 'Active',
+        products: '',
+        createdDate: formattedToday
+      });
+    };
+
+    if (!isOpen) return null;
+
+    return (
+      <div className="modal-overlay">
+        <div className="modal-box">
+          <div className="modal-header">
+            <h3>{editData ? "Edit Tenant" : "Add New Tenant"}</h3>
+            <FaTimes className="close-icon" onClick={onClose} />
           </div>
+
+          <form className="modal-form" onSubmit={handleSubmit}>
+            <div className="form-row">
+              <div className="input-group">
+                <label>Tenant Name</label>
+                <input
+                  type="text"
+                  name="tenantsName"
+                  value={formData.tenantsName}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              <div className="input-group">
+                <label>Domain</label>
+                <input
+                  type="text"
+                  name="domain"
+                  value={formData.domain}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="input-group">
+                <label>Admin Email</label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              <div className="input-group">
+                <label>Subscription Plan</label>
+                <select name="subscription" value={formData.subscription} onChange={handleChange}>
+                  <option value="Free">Free</option>
+                  <option value="Enterprise">Enterprise</option>
+                  <option value="Professional">Professional</option>
+                  <option value="Starter">Starter</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="input-group">
+                <label>Status</label>
+                <select name="status" value={formData.status} onChange={handleChange}>
+                  <option value="Active">Active</option>
+                  <option value="Inactive">Inactive</option>
+                </select>
+              </div>
+              <div className="input-group">
+                <label>Created Date</label>
+                <input
+                  type="date"
+                  name="createdDate"
+                  value={formData.createdDate}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="btn-row">
+              <button type="button" className="cancel-btn" onClick={onClose}>
+                Cancel
+              </button>
+              <button type="submit" className="save-btn">
+                {editData ? "Update Tenant" : "Save Tenant"}
+              </button>
+            </div>
+          </form>
         </div>
-      )}
-
-      <div className="search">
-        <input type="text" placeholder="🔍 Search tenants..." className="search-input" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
-        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="dropdown">
-          <option value="All">All Statuses</option>
-          <option value="Active">Active</option>
-          <option value="Inactive">Inactive</option>
-        </select>
-        <select value={productFilter} onChange={(e) => setProductFilter(e.target.value)} className="dropdown dropdown1">
-          <option value="All">All Products</option>
-          <option value="1">1 Product</option>
-          <option value="2">2 Products</option>
-          <option value="3">3 Products</option>
-        </select>
       </div>
+  );
+    }
 
-      <div className="stats-container">
+//     const SearchBar = ({ searchTerm, setSearchTerm, statusFilter, setStatusFilter, productFilter, setProductFilter }) => {
+//   return (
+//     <div className="search">
+//       <input
+//         type="text"
+//         placeholder="🔍 Search tenants..."
+//         className="search-input"
+//         value={searchTerm}
+//         onChange={(e) => setSearchTerm(e.target.value)}
+//       />
+//       <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="dropdown">
+//         <option value="All">All Statuses</option>
+//         <option value="Active">Active</option>
+//         <option value="Inactive">Inactive</option>
+//       </select>
+//       <select value={productFilter} onChange={(e) => setProductFilter(e.target.value)} className="dropdown dropdown1">
+//         <option value="All">All Products</option>
+//         <option value="1">1 Product</option>
+//         <option value="2">2 Products</option>
+//         <option value="3">3 Products</option>
+//       </select>
+//     </div>
+//   );
+// };
+
+    const TenantsInfo = () => {
+      return(
+        <div className="stats-container">
         <div className="stat-box purple-border">
           <HiOutlineOfficeBuilding className="stat-icon" />
           <div>
@@ -473,17 +516,29 @@ const handleSubmit = async (e) => {
           </div>
         </div>
       </div>
+      )
+    }
 
-     <div className="cards">
-        {tenants.map((tenant, idx) => (
-          <div key={idx} className="card">
+    const Cardlist = ({ tenants, featuresAccess, handleEditClick, handleDeleteTenant }) => {
+
+      if (!Array.isArray(tenants)) {
+    console.error("Expected 'tenants' to be an array, but got:", tenants);
+    return <p>No tenant data available.</p>;
+  }
+
+  console.log(tenants)
+
+      return(
+        <div className="cards">
+        {tenants.map((tenant) => (
+          <div key={tenant._id} className="card">
             <div className="card-top">
               <div className="initials-circle">
-                {tenant.name?.split(" ").map(w => w[0]).join('').slice(0, 2).toUpperCase()}
+                {tenant.tenantsName?.split(" ").map(w => w[0]).join('').slice(0, 2).toUpperCase()}
               </div>
               <div className="card-info">
-                <h4 className="tenant-name">{tenant.name}</h4>
-                <p className="tenant-email">{tenant.email}</p>
+                <h4 className="tenant-name">{tenant.tenantsName}</h4>
+                <p className="tenant-email">{tenant.domain}</p>
               </div>
             </div>
             <div className="column">
@@ -495,7 +550,7 @@ const handleSubmit = async (e) => {
             </div>
             <hr className="card-divider" />
             <div className="card-footer">
-              <button className="link-btn" onClick={featuresAccess}>Manage Products</button>
+              <button className="link-btn" onClick={() => featuresAccess(tenant._id)}>Manage Products</button>
 
 
               
@@ -509,57 +564,148 @@ const handleSubmit = async (e) => {
           </div>
         ))}
       </div>
-{/* <ManageProducts/> */}
-        {showManageProducts && (
-            <div className="modal-overlay">
-            <div className="manage-modal">
-              <div className="modal-header">
-                <h3>Manage Product Features</h3>
-                <FaTimes className="close-icon" onClick={() => setShowManageProducts(false)} />
-              </div>
+      )
+    }
   
-              <div className="modal-body">
-                {productFeatures.map(section => (
-                  <div className="section" key={section.category}> 
-                  {/* logic category === name ? first switch next contant tomorrow plan */}
-                    <h4>{section.category}</h4>
-                    {section.items.map(item => (
-                      <div className="feature-row" key={item.id}>
-                        <div className="feature-text">
-                          <strong>{item.name}</strong>
-                          <p>{item.desc}</p>
-                        </div>
-                        <label className="switch">
-                          <input
-                            type="checkbox"
-                            checked={toggles[item.id]}
-                            onChange={() => handleToggle(item.id)}
-                          />
-                          <span className="slider"></span>
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                ))}
-              </div>
-  
-              <div className="btn-row">
-                <button className="cancel-btn" onClick={() => setShowManageProducts(false)}>Cancel</button>
-                <button className="save-btn" onClick={handleSave}>Save</button>
-              </div>
-            </div>
-          </div>
-        )}
+    const ManageProducts = ({ isOpen, onClose, togglesData }) => {
+        
+    const [featureState, setFeatureState] = useState([]);
 
-       
- 
-        <Manageproducts
+  // Initialize featureState from props when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      const fData = togglesData.features;
+      console.log(togglesData);
+      setFeatureState([...fData]);
+    }
+  }, [isOpen, togglesData]);
+
+  const handleToggle = (id) => {
+    const updated = featureState.map(f =>
+      f.id === id ? { ...f, enabled: !f.enabled } : f
+    );
+    setFeatureState(updated);
+  };
+
+  const handleSave = async () => {
+    const id = togglesData._id;
+    console.log(id);
+    try {
+      const res = await axios.put(`http://localhost:5000/api/tenants/${id}/features`, { features: featureState });
+      alert(res.data.msg);
+      onClose();
+    } catch (err) {
+      alert(err.response?.data?.msg || "Something went wrong");
+    }
+   
+  };
+
+  if (!isOpen) return null;    
+      
+  return (
+    <div className="modal-overlay">
+      <div className="manage-modal">
+        <div className="modal-header">
+          <h3>Manage Product Features</h3>
+          <FaTimes className="close-icon" onClick={() => onClose()} />
+        </div>
+
+        <div className="modal-body">
+          {productFeatures.map(section => (
+            <div className='section' key={section.category}>
+              {section.items.map(i => {
+                const current = featureState.find(f => f.id === i.id);
+                const checked = current ? current.enabled : false;
+
+                return (
+                  <div className="feature-row" key={i.id}>
+                    <div className="feature-text">
+                      <strong>{i.name}</strong>
+                      <p>{i.desc}</p>
+                    </div>
+                    <label className="switch">
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={() => handleToggle(i.id)}
+                      />
+                      <span className="slider"></span>
+                    </label>
+                  </div>
+                );
+              })}
+            </div>
+          ))}
+        </div>
+
+        <div className="btn-row">
+          <button className="cancel-btn" onClick={() => onClose()}>Cancel</button>
+          <button className="save-btn" onClick={handleSave}>Save</button>
+        </div>
+      </div>
+    </div>
+  );
+    }
+
+    const refreshData = () => {
+      setShowFeatureModel(false);
+      dataFetch(); // <=
+    }
+
+  return (
+    /*Navbar*/
+    <div className="dashboard">
+      <Navbar handleOpen={ () => setShowModal(true) } />
+
+      {showModal && <AddNewTenants handleClose={() => setShowModal(false)} addNewTenants={addNewTenants} />}
+
+      {showEditModal && editingTenant && <EditTenant isOpen={showEditModal} onClose={() => setShowEditModal(false) } editData={editingTenant} onUpdate={handleUpdate} />}
+
+      {/* <SearchBar /> */}
+      {/* <SearchBar 
+  searchTerm={searchTerm} 
+  setSearchTerm={setSearchTerm}
+  statusFilter={statusFilter} 
+  setStatusFilter={setStatusFilter}
+  productFilter={productFilter} 
+  setProductFilter={setProductFilter}
+/> */}
+    <div className="search">
+      <input
+        type="text"
+        placeholder="🔍 Search tenants..."
+        className="search-input"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+      />
+      <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="dropdown">
+        <option value="All">All Statuses</option>
+        <option value="Active">Active</option>
+        <option value="Inactive">Inactive</option>
+      </select>
+      <select value={productFilter} onChange={(e) => setProductFilter(e.target.value)} className="dropdown dropdown1">
+        <option value="All">All Products</option>
+        <option value="1">1 Product</option>
+        <option value="2">2 Products</option>
+        <option value="3">3 Products</option>
+      </select>
+    </div>
+
+      <TenantsInfo />
+
+      <Cardlist
+        tenants={filteredTenants}
+        featuresAccess={featuresAccess}
+        handleEditClick={handleEditClick}
+        handleDeleteTenant={handleDeleteTenant}
+      />
+
+      <ManageProducts
         isOpen={showFeatureModel}
-        onClose={() => setShowFeatureModel(false)}
+        onClose={refreshData}
         togglesData={userFeatureAccess}
       />
-      
-{/*  */}
+
     </div>
   );
 }

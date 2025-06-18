@@ -12,7 +12,23 @@ function Login() {
   
   const handleLogin = async (e) => {
     e.preventDefault(); 
-    navigate('/view')
+    
+    localStorage.clear();
+
+    try {
+
+      const res = await axios.post('http://localhost:5000/api/user/login', { email, password } )
+      localStorage.setItem('token', res.data.token);
+      localStorage.setItem('userData', JSON.stringify(res.data.user));
+      
+     // isLogin(JSON.parse(localStorage.getItem('userData')));
+
+      navigate('/view');
+
+    } catch (err) {
+      alert(err.response?.data?.msg || "Something went wrong");
+    }
+
 };
     /*try {
       const res = await axios.post('http://localhost:5000/api/login', {
@@ -63,7 +79,7 @@ function Login() {
 
           <div className="form-footer">
             <label className="remember-me">
-              <input type="checkbox" />
+              <input type="checkbox" required />
               Remember me
             </label>
             <a href="#">Forgot password?</a>
