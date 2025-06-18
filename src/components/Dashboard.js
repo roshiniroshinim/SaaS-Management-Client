@@ -39,7 +39,7 @@ function Dashboard() {
   console.log(tenants);
 
   const dataFetch = () => {
-    axios.get("http://localhost:5000/api/tenants")
+    axios.get("https://saas-management-server.onrender.com/api/tenants")
       .then((response) => {
         setTenants(response.data);
       })
@@ -59,7 +59,7 @@ const filteredTenants = tenants.filter(tenant => {
   const handleDeleteTenant = async (id) => {
     const confirmDelete = window.confirm("Are you sure you want to delete this tenant?");
     if (confirmDelete) {
-      const res = await axios.delete(`http://localhost:5000/api/tenants/${id}`);
+      const res = await axios.delete(`https://saas-management-server.onrender.com/api/tenants/${id}`);
       alert('delete successfull...')
       console.log(res.data);
       dataFetch(); // <=
@@ -105,7 +105,7 @@ const filteredTenants = tenants.filter(tenant => {
   const [userFeatureAccess,
     setUserFeatureAccess]=useState([])
     const featuresAccess = async (id) =>{
-      const res = await axios.get(`http://localhost:5000/api/tenants/${id}/features`);
+      const res = await axios.get(`https://saas-management-server.onrender.com/api/tenants/${id}/features`);
           console.log(res.data);
       setUserFeatureAccess(res.data)
       setShowFeatureModel(true);
@@ -180,7 +180,7 @@ const filteredTenants = tenants.filter(tenant => {
     const addNewTenants = async (newTenant) => {
         const newCard = {...newTenant, features: features};
         try {
-            await axios.post('http://localhost:5000/api/tenants', newCard);
+            await axios.post('https://saas-management-server.onrender.com/api/tenants', newCard);
             console.log(newCard);
             setTenants(prev => [...prev, newCard]);
             alert('Tenant added successfully!');
@@ -191,7 +191,7 @@ const filteredTenants = tenants.filter(tenant => {
     }
 
       const handleUpdate = async (updatedTenant) => {
-        await axios.put(`http://localhost:5000/api/tenants/${updatedTenant._id}`, updatedTenant);
+        await axios.put(`https://saas-management-server.onrender.com/api/tenants/${updatedTenant._id}`, updatedTenant);
           dataFetch(); // <=
         handleEditClose();
     };
@@ -591,7 +591,7 @@ const filteredTenants = tenants.filter(tenant => {
     const id = togglesData._id;
     console.log(id);
     try {
-      const res = await axios.put(`http://localhost:5000/api/tenants/${id}/features`, { features: featureState });
+      const res = await axios.put(`https://saas-management-server.onrender.com/api/tenants/${id}/features`, { features: featureState });
       alert(res.data.msg);
       onClose();
     } catch (err) {
@@ -688,8 +688,6 @@ const filteredTenants = tenants.filter(tenant => {
         <option value="1">1 Product</option>
         <option value="2">2 Products</option>
         <option value="3">3 Products</option>
-        <option value="4">4 Products</option>
-        <option value="5">5 Products</option>
       </select>
     </div>
 
